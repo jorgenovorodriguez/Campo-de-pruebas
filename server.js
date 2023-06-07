@@ -8,17 +8,6 @@ const cors = require('cors');
 // Creamos el servidor.
 const app = express();
 
-// Middleware que deserializa un body en formato raw creando la propiedad body
-// en el objeto request.
-app.use(express.json());
-
-// Middleware que deserializa un body en formato form-data creando la propiedad body
-// en el objeto request y, si hay algún archivo, la propiedad files.
-app.use(fileUpload());
-
-// Middleware que muestra información sobre la petición entrante.
-app.use(morgan('dev'));
-
 // Middleware que evita problemas con las CORS cuando intentamos conectar el cliente con
 // el servidor.
 app.use(cors());
@@ -46,14 +35,14 @@ const userExists = require('./middlewares/userExists');
  */
 
 const {
-    newUser,
-    validateUser,
-    loginUser,
-    getUser,
-    getOwnUser,
-    sendRecoverPass,
-    editUserPass,
-    editUserAvatar,
+  newUser,
+  validateUser,
+  loginUser,
+  getUser,
+  getOwnUser,
+  sendRecoverPass,
+  editUserPass,
+  editUserAvatar,
 } = require('./controllers/users');
 
 // Registro de usuario pendiente de validar.
@@ -87,12 +76,12 @@ app.put('/users/avatar', authUser, userExists, editUserAvatar);
  */
 
 const {
-    newEntry,
-    listEntries,
-    getEntry,
-    voteEntry,
-    addEntryPhoto,
-    deleteEntryPhoto,
+  newEntry,
+  listEntries,
+  getEntry,
+  voteEntry,
+  addEntryPhoto,
+  deleteEntryPhoto,
 } = require('./controllers/entries');
 
 // Nueva entrada.
@@ -112,31 +101,31 @@ app.post('/entries/:entryId/photos', authUser, userExists, addEntryPhoto);
 
 // Eliminar una foto de una entrada.
 app.delete(
-    '/entries/:entryId/photos/:photoId',
-    authUser,
-    userExists,
-    deleteEntryPhoto
+  '/entries/:entryId/photos/:photoId',
+  authUser,
+  userExists,
+  deleteEntryPhoto
 );
 
 // Middleware de error.
 app.use((err, req, res, next) => {
-    console.error(err);
+  console.error(err);
 
-    res.status(err.httpStatus || 500).send({
-        status: 'error',
-        message: err.message,
-    });
+  res.status(err.httpStatus || 500).send({
+    status: 'error',
+    message: err.message,
+  });
 });
 
 // Middleware de ruta no encontrada.
 app.use((req, res) => {
-    res.status(404).send({
-        status: 'error',
-        message: 'Ruta no encontrada',
-    });
+  res.status(404).send({
+    status: 'error',
+    message: 'Ruta no encontrada',
+  });
 });
 
 // Ponemos el servidor a escuchar peticiones en un puerto dado.
 app.listen(process.env.PORT, () => {
-    console.log(`Server listening at http://localhost:${process.env.PORT}`);
+  console.log(`Server listening at http://localhost:${process.env.PORT}`);
 });
