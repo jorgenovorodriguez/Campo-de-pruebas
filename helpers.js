@@ -15,9 +15,9 @@ const { SMTP_USER, SMTP_PASS, UPLOADS_DIR } = process.env;
  */
 
 const generateError = (msg, code) => {
-    const err = new Error(msg);
-    err.httpStatus = code;
-    throw err;
+  const err = new Error(msg);
+  err.httpStatus = code;
+  throw err;
 };
 
 /**
@@ -27,40 +27,29 @@ const generateError = (msg, code) => {
  */
 
 const savePhoto = async (img, width) => {
-    try {
-        // Ruta absoluta al directorio de subida de archivos.
-        const uploadsPath = path.join(__dirname, UPLOADS_DIR);
+  try {
+    // Rutacon la imagen dada.
+    const sharpImg = sharp(img.data);
 
-        try {
-            await fs.access(uploadsPath);
-        } catch {
-            // Si el método access lanza un error significa que la directorio no existe.
-            // Lo creamos.
-            await fs.mkdir(uploadsPath);
-        }
+    // Redimensionamos la imagen. Width representa un tamaño en píxeles.
+    sharpImg.resize(width);
 
-        // Creamos un objeto de tipo Sharp con la imagen dada.
-        const sharpImg = sharp(img.data);
+    // Generamos un nombre único para la imagen dado que no podemos guardar dos imágenes
+    // con el mismo nombre en la carpeta uploads.
+    const imgName = `${uuid()}.jpg`;
 
-        // Redimensionamos la imagen. Width representa un tamaño en píxeles.
-        sharpImg.resize(width);
+    // Ruta absoluta a la imagen.
+    const imgPath = path.join(uploadsPath, imgName);
 
-        // Generamos un nombre único para la imagen dado que no podemos guardar dos imágenes
-        // con el mismo nombre en la carpeta uploads.
-        const imgName = `${uuid()}.jpg`;
+    // Guardamos la imagen.
+    sharpImg.toFile(imgPath);
 
-        // Ruta absoluta a la imagen.
-        const imgPath = path.join(uploadsPath, imgName);
-
-        // Guardamos la imagen.
-        sharpImg.toFile(imgPath);
-
-        // Retornamos el nombre de la imagen.
-        return imgName;
-    } catch (err) {
-        console.error(err);
-        generateError('Error al guardar la imagen en el servidor', 500);
-    }
+    // Retornamos el nombre de la imagen.
+    return imgName;
+  } catch (err) {
+    console.error(err);
+    generateError('Error al guardar la imagen en el servidor', 500);
+  }
 };
 
 /**
@@ -70,23 +59,23 @@ const savePhoto = async (img, width) => {
  */
 
 const deletePhoto = async (imgName) => {
+  try {
+    // Ruta absoluta al archivo que queremos elimiar.
+    const imgPath = path.join(__dirname, UPLOADS_DIR, imgName);
+
     try {
-        // Ruta absoluta al archivo que queremos elimiar.
-        const imgPath = path.join(__dirname, UPLOADS_DIR, imgName);
-
-        try {
-            await fs.access(imgPath);
-        } catch {
-            // Si no existe el archivo finalizamos la función.
-            return;
-        }
-
-        // Eliminamos el archivo de la carpeta de uploads.
-        await fs.unlink(imgPath);
-    } catch (err) {
-        console.error(err);
-        generateError('Error al eliminar la imagen del servidor', 500);
+      await fs.access(imgPath);
+    } catch {
+      // Si no existe el archivo finalizamos la función.
+      return;
     }
+
+    // Eliminamos el archivo de la carpeta de uploads.
+    await fs.unlink(imgPath);
+  } catch (err) {
+    console.error(err);
+    generateError('Error al eliminar la imagen del servidor', 500);
+  }
 };
 
 /**
@@ -97,33 +86,33 @@ const deletePhoto = async (imgName) => {
 
 // Creamos un transporte para poder enviar emails con nodemailer.
 const transport = nodemailer.createTransport({
-    host: 'smtp-relay.sendinblue.com',
-    port: 587,
-    auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
-    },
+  host: 'smtp-relay.sendinblue.com',
+  port: 587,
+  auth: {
+    user: SMTP_USER,
+    pass: SMTP_PASS,
+  },
 });
 
 const sendMail = async (email, subject, body) => {
-    try {
-        const mailOptions = {
-            from: SMTP_USER,
-            to: email,
-            subject,
-            text: body,
-        };
+  try {
+    const mailOptions = {
+      from: SMTP_USER,
+      to: email,
+      subject,
+      text: body,
+    };
 
-        await transport.sendMail(mailOptions);
-    } catch (err) {
-        console.error(err);
-        generateError('Error al enviar el email al usuario', 500);
-    }
+    await transport.sendMail(mailOptions);
+  } catch (err) {
+    console.error(err);
+    generateError('Error al enviar el email al usuario', 500);
+  }
 };
 
 module.exports = {
-    generateError,
-    savePhoto,
-    deletePhoto,
-    sendMail,
+  generateError,
+  savePhoto,
+  deletePhoto,
+  sendMail,
 };

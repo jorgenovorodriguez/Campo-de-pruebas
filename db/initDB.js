@@ -3,21 +3,18 @@ require('dotenv').config();
 const getDB = require('./getDB');
 
 const main = async () => {
-    let connection;
+  let connection;
 
-    try {
-        connection = await getDB();
+  try {
+    connection = await getDB();
 
-        console.log('Borrando tablas...');
+    console.log('Borrando tablas...');
 
-        await connection.query('DROP TABLE IF EXISTS entryVotes');
-        await connection.query('DROP TABLE IF EXISTS entryPhotos');
-        await connection.query('DROP TABLE IF EXISTS entries');
-        await connection.query('DROP TABLE IF EXISTS users');
+    await connection.query('DROP TABLE IF EXISTS entryVotes');
+    await connection.query('DROP TABLE IF EXISTS entryPhotos');
+    await connectio;
 
-        console.log('Creando tablas...');
-
-        await connection.query(`
+    await connection.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
                 username VARCHAR(30) UNIQUE NOT NULL,
@@ -33,7 +30,7 @@ const main = async () => {
             )
         `);
 
-        await connection.query(`
+    await connection.query(`
             CREATE TABLE IF NOT EXISTS entries (
                 id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
                 title VARCHAR(30) NOT NULL,
@@ -45,7 +42,7 @@ const main = async () => {
             )
         `);
 
-        await connection.query(`
+    await connection.query(`
             CREATE TABLE IF NOT EXISTS entryPhotos (
                 id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
                 name VARCHAR(100) NOT NULL,
@@ -55,7 +52,7 @@ const main = async () => {
             )
         `);
 
-        await connection.query(`
+    await connection.query(`
             CREATE TABLE IF NOT EXISTS entryVotes (
                 id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
                 value TINYINT UNSIGNED NOT NULL,
@@ -67,13 +64,13 @@ const main = async () => {
             )
         `);
 
-        console.log('¡Tablas creadas!');
-    } catch (err) {
-        console.error(err);
-    } finally {
-        if (connection) connection.release();
-        process.exit();
-    }
+    console.log('¡Tablas creadas!');
+  } catch (err) {
+    console.error(err);
+  } finally {
+    if (connection) connection.release();
+    process.exit();
+  }
 };
 
 main();
